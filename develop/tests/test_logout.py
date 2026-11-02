@@ -1,33 +1,18 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from helpers import BASE_URL
 import locators as loc
 
+class TestLogout:
 
-def test_logout_success(driver):
-    driver.get(BASE_URL)
-    driver.find_element(*loc.LOGIN_REGISTER_BUTTON).click()
+    def test_logout_success(self, authorized_user):
+        driver = authorized_user
 
-    WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located(loc.EMAIL_INPUT)
-    )
+        logout_btn = WebDriverWait(driver, 10).until(EC.element_to_be_clickable(loc.LOGOUT_BUTTON))
+        logout_btn.click()
 
-    driver.find_element(*loc.EMAIL_INPUT).send_keys("existing@test.ru")
-    driver.find_element(*loc.PASSWORD_INPUT).send_keys("TestPass123!")
-    driver.find_element(*loc.LOGIN_BUTTON).click()
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located(loc.LOGIN_REGISTER_BUTTON))
+        assert driver.find_element(*loc.LOGIN_REGISTER_BUTTON).is_displayed()
 
-    WebDriverWait(driver, 10).until(EC.visibility_of_element_located(loc.USER_NAME))
-
-    driver.find_element(*loc.LOGOUT_BUTTON).click()
-
-    WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located(loc.LOGIN_REGISTER_BUTTON)
-    )
-
-    assert driver.find_element(*loc.LOGIN_REGISTER_BUTTON).is_displayed()
-
-    user_elements = driver.find_elements(*loc.USER_NAME)
-    avatar_elements = driver.find_elements(*loc.USER_AVATAR)
-    assert len(user_elements) == 0
-    assert len(avatar_elements) == 0
+        assert len(driver.find_elements(*loc.USER_NAME)) == 0
+        assert len(driver.find_elements(*loc.USER_AVATAR)) == 0
